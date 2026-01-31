@@ -109,10 +109,8 @@ void mainloop() {
 	case 0x2000:
 		// Call subroutine at nnn
 		addr = opcode & 0x0FFF;
-
 		sp++;
 		stack[sp] = pc;
-
 		pc = addr;
 		break;
 	case 0x3000:
@@ -301,6 +299,7 @@ void mainloop() {
 			break;
 		case 0x33:
 			// Store BCD representation of VX
+			X = (opcode & 0x0F00) >> 8;
 			value = V[X];
 			ram[I] = V[X] / 100;
 			ram[I + 1] = (V[X] / 10) % 10;
@@ -330,7 +329,14 @@ void mainloop() {
 
 void draw_screen() {
 	printf("\033[J\033[H");
+
+	printf("┌");
+	for (int c = 0; c < 64; c++) {
+		printf("──");
+	}
+	printf("┐\n");
 	for (int r = 0; r < 32; r++) {
+		printf("│");
 		for (int c = 0; c < 64; c++) {
 			if (screen[r][c] > 0) {
 				printf("██");
@@ -338,6 +344,11 @@ void draw_screen() {
 				printf("  ");
 			}
 		}
-		printf("\n");
+		printf("│\n");
 	}
+	printf("└");
+	for (int c = 0; c < 64; c++) {
+		printf("──");
+	}
+	printf("┘\n");
 }
