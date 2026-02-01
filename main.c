@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "chip8.h"
 #include "helper.h"
@@ -36,12 +37,23 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 
+	struct timeval t;
+	double start = 0, end = 0;
+
 	while (1) {
+		start = get_time_ms(&t);
 		handle_input(&emulator);
-		for (int i = 0; i < 100; i++) {
+		for (int i = 0; i < 10; i++) {
 			mainloop(&emulator);
 		}
 		draw_screen(&emulator);
+		end = get_time_ms(&t);
+
+		// Sleep for remaining time if rendering is finished before 1/60 seconds
+		if (end - start < 16.667) {
+			usleep(16667 - ((end - start) * 1000));
+		}
+
 		memset(emulator.keypad, 0x0, sizeof(emulator.keypad));
 		if (emulator.DT > 0) {
 			(emulator.DT)--;

@@ -8,5 +8,6 @@
 #include "chip8.h"
 
 int load_rom(chip8 *e, char *rom_file);
+double get_time_ms(struct timeval *t);
 
 #endif

@@ -18,3 +18,9 @@ int load_rom(chip8 *e, char *rom_file) {
 
 	return 0;
 }
+
+double get_time_ms(struct timeval *t) {
+	gettimeofday(t, NULL);
+	double time = (double)(t->tv_sec) * 1000 + ((double)(t->tv_usec)) / 1000;
+	return time;
+}
