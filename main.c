@@ -5,11 +5,12 @@
 #include <time.h>
 
 #include "chip8.h"
+#include "input.h"
 
 chip8 emulator;
 
 void initialize(chip8 *e) {
-	printf("\033[2J\033[H"); // Clear screen & position cursor at (0, 0)
+	setup_terminal();
 
 	e->pc = 0x200;
 	e->sp = 0;
@@ -20,6 +21,7 @@ void initialize(chip8 *e) {
 	for (int i = 0; i < 32; i++) {
 		memset((e->screen)[i], 0, sizeof((e->screen)[i]));
 	}
+	memset(e->keypad, 0x0, sizeof(e->keypad));
 
 	srand(time(0));
 }
@@ -47,12 +49,18 @@ int main(int argc, char *argv[]) {
 	initialize(&emulator);
 
 	if (load_rom(&emulator, argv[1]) != 0) {
+		restore_terminal();
 		printf("Invalid ROM file passed.\n");
 		return 1;
 	}
 
 	while (1) {
-		mainloop(&emulator);
+		handle_input(&emulator);
+		for (int i = 0; i < 100; i++) {
+			mainloop(&emulator);
+		}
+		draw_screen(&emulator);
+		memset(emulator.keypad, 0x0, sizeof(emulator.keypad));
 	}
 
 	return 0;
@@ -251,13 +259,22 @@ void mainloop(chip8 *e) {
 				(e->screen)[((e->V)[Y] + i) % 32][((e->V)[X] + j) % 64] ^= (e->ram[(e->I) + i] & (1 << (7 - j))) >> (7 - j);
 			}
 		}
-		draw_screen(e);
 		break;
 	case 0xE000:
 		switch (opcode & 0x00FF) {
 		case 0x9E:
+			// Skip next instruction if key with value VX is pressed
+			X = (opcode & 0x0F00) >> 8;
+			if ((e->keypad)[(e->V)[X]] == 0x1) {
+				e->pc += 2;
+			}
 			break;
 		case 0xA1:
+			// Skip next instruction if key with value VX is not pressed
+			X = (opcode & 0x0F00) >> 8;
+			if ((e->keypad)[(e->V)[X]] != 0x1) {
+				e->pc += 2;
+			}
 			break;
 		}
 		break;
@@ -269,6 +286,19 @@ void mainloop(chip8 *e) {
 			(e->V)[X] = e->DT;
 			break;
 		case 0x0A:
+			// Wait for key press, then store that key's value in VX
+			X = (opcode & 0x0F00) >> 8;
+			value = 0;
+			for (int i = 0; i < 16; i++) {
+				if ((e->keypad)[i] == 0x1) {
+					(e->V)[X] = i;
+					value = 1;
+					break;
+				}
+			}
+			if (value == 0) {
+				e->pc -= 2;
+			}
 			break;
 		case 0x15:
 			// Set DT = VX

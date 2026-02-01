@@ -12,6 +12,7 @@ typedef struct chip8 {
 	uint8_t sp;
 	uint8_t DT, ST;
 	uint8_t screen[32][64];
+	uint8_t keypad[16];
 } chip8;
 
 void initialize(chip8 *e);
