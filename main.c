@@ -61,6 +61,12 @@ int main(int argc, char *argv[]) {
 		}
 		draw_screen(&emulator);
 		memset(emulator.keypad, 0x0, sizeof(emulator.keypad));
+		if (emulator.DT > 0) {
+			(emulator.DT)--;
+		}
+		if (emulator.ST > 0) {
+			(emulator.ST)--;
+		}
 	}
 
 	return 0;
@@ -253,7 +259,8 @@ void mainloop(chip8 *e) {
 
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < 8; j++) {
-				if ((e->screen)[((e->V)[Y] + i) % 32][((e->V)[X] + j) % 64] == 1 && (e->ram[(e->I) + i] & (1 << (7 - j))) >> (7 - j) == 1) {
+				if ((e->screen)[((e->V)[Y] + i) % 32][((e->V)[X] + j) % 64] == 1 &&
+				    (e->ram[(e->I) + i] & (1 << (7 - j))) >> (7 - j) == 1) {
 					(e->V)[0xF] = 1;
 				}
 				(e->screen)[((e->V)[Y] + i) % 32][((e->V)[X] + j) % 64] ^= (e->ram[(e->I) + i] & (1 << (7 - j))) >> (7 - j);
