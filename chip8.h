@@ -2,6 +2,7 @@
 #define CHIP8_H
 
 #include <stdint.h>
+#include <SDL2/SDL.h>
 
 typedef struct chip8 {
 	uint8_t ram[4096];
@@ -13,6 +14,9 @@ typedef struct chip8 {
 	uint8_t DT, ST;
 	uint8_t screen[32][64];
 	uint8_t keypad[16];
+	SDL_Window *window;
+	SDL_Renderer *renderer;
+	SDL_Event event;
 } chip8;
 
 void initialize(chip8 *e);

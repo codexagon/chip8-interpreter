@@ -7,12 +7,14 @@
 
 #include "chip8.h"
 #include "helper.h"
-#include "input.h"
+#include "window.h"
 
 chip8 emulator;
 
 void initialize(chip8 *e) {
-	setup_terminal();
+	if (init_sdl(e) > 0) {
+		exit(1);
+	}
 
 	e->pc = 0x200;
 	e->sp = 0;
@@ -32,7 +34,6 @@ int main(int argc, char *argv[]) {
 	initialize(&emulator);
 
 	if (load_rom(&emulator, argv[1]) != 0) {
-		restore_terminal();
 		printf("Invalid ROM file passed.\n");
 		return 1;
 	}
@@ -51,10 +52,9 @@ int main(int argc, char *argv[]) {
 
 		// Sleep for remaining time if rendering is finished before 1/60 seconds
 		if (end - start < 16.667) {
-			usleep(16667 - ((end - start) * 1000));
+			SDL_Delay(16.667 - (end - start));
 		}
 
-		memset(emulator.keypad, 0x0, sizeof(emulator.keypad));
 		if (emulator.DT > 0) {
 			(emulator.DT)--;
 		}
@@ -346,30 +346,4 @@ void mainloop(chip8 *e) {
 		printf("Invalid opcode found: %#04X\n", opcode);
 		break;
 	}
-}
-
-void draw_screen(chip8 *e) {
-	printf("\033[J\033[H");
-
-	printf("┌");
-	for (int c = 0; c < 64; c++) {
-		printf("──");
-	}
-	printf("┐\n");
-	for (int r = 0; r < 32; r++) {
-		printf("│");
-		for (int c = 0; c < 64; c++) {
-			if ((e->screen)[r][c] > 0) {
-				printf("██");
-			} else {
-				printf("  ");
-			}
-		}
-		printf("│\n");
-	}
-	printf("└");
-	for (int c = 0; c < 64; c++) {
-		printf("──");
-	}
-	printf("┘\n");
 }
