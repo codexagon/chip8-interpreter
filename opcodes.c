@@ -243,6 +243,9 @@ void execute_opcodes(chip8 *e, uint16_t opcode) {
 			(e->I) += (e->V)[X];
 			break;
 		case 0x29:
+			// Set I = location of sprite for digit VX
+			X = (opcode & 0x0F00) >> 8;
+			e->I = 0x50 + (5 * (e->V)[X]);
 			break;
 		case 0x33:
 			// Store BCD representation of VX
