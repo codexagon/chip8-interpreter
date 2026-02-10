@@ -10,14 +10,20 @@ A simple CHIP-8 interpreter made using C and SDL2.
 
 1. Make sure SDL2 is installed in your system. If not, install it on your system:
 
-2. Compile the binary
+2. Clone this repository & navigate to it
+```sh
+git clone git@github.com:codexagon/chip8-interpreter.git
+cd chip8-interpreter
+```
+
+3. Compile the binary
 ```sh
 gcc -o chip8 *.c -lSDL2
 ```
 
-3. Download a CHIP-8 ROM file
+4. Download a CHIP-8 ROM file
 
-3. Run the compiled binary
+5. Run the compiled binary
 ```sh
 ./chip8 <downloaded-rom-file>
 ```
